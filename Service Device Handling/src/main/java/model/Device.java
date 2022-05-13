@@ -43,10 +43,11 @@ public class Device {
 			 //execute the statement
 			 preparedStmt.execute(); 
 			 con.close(); 
-			 output = "Inserted successfully"; 
+			 String newDevice = readDevices(); 
+			 output = "{\"status\":\"success\", \"data\": \"" + newDevice+ "\"}"; 
 			 
 		}catch(Exception e) {
-			output = "Error while inserting"; 
+			output ="{\"status\":\"error\", \"data\":  \"Error while inserting the device.\"}"; 
 			 System.err.println(e.getMessage()); 
 		}
 		
@@ -91,8 +92,8 @@ public class Device {
 			  
 			  
 			  //add a row into html table
-			  output += "<tr><td><input id='hidDeviceIDUpdate' name='hidDeviceIDUpdate'  type='hidden' value='" + deviceID + "'>"
-							  + device + "</td>";
+			//  output += "<tr><td><input id='hidDeviceIDUpdate' name='hidDeviceIDUpdate'  type='hidden' value='" + deviceID + "'>" + device + "</td>";
+			  output +="<td>"+device+"</td>";
 			  output += "<td>" +powerUsage+ "</td>";
 			  output += "<td>" +hours+ "</td>";
 			  output += "<td>" +noOfdevices+ "</td>";
@@ -101,13 +102,9 @@ public class Device {
 			  
 			  //buttons
 			  output += "<td><input name='btnUpdate'"
-			  		+ "type='button' value='Update' class=' btnUpdate btn btn-secondary'></td>"
-			  		+ "<td><form method='post' action='index.jsp'>"
-			  		+ "<input name='btnRemove'"
-			  		+ "type='submit' value='Remove'  class='btn btn-danger'>"
-			  		+ "<input name='hiddeviceIDdelete' type='hidden'"
-			  		+ "value='"+deviceID+"'>" + "</form></td></tr>";
-			  
+			  		+ "type='button' value='Update' class=' btnUpdate btn btn-secondary' data-deviceID = '"+deviceID+"'></td>"
+			  		+ "<td><input name='btnRemove' type='submit' value='Remove'  class='btnRemove btn btn-danger'  data-deviceID = '"+deviceID+"'></td></tr>";
+			 
 			  }
 		  con.close();
 		  //complete the html table
@@ -146,15 +143,15 @@ public class Device {
 			//execute the statement
 			preparedStmt.execute();
 			con.close();
+			String newDevice = readDevices(); 
+			 output = "{\"status\":\"success\", \"data\": \"" + newDevice+ "\"}"; 
+			 
+		}catch(Exception e) {
+			output ="{\"status\":\"error\", \"data\":  \"Error while deleting the device.\"}"; 
+			 System.err.println(e.getMessage()); 
+		}
 			
-			output ="Deleted Successfully";
-			
-			}catch(Exception e) {
-			    output = "Error while deleting the item."; 
-			    System.err.println(e.getMessage());
-		     }
-		
-		
+	
 		return output;
 	}
 
@@ -186,13 +183,15 @@ public class Device {
 			
 			preparedStmt.execute();
 			con.close();
-			output ="Updated successfully";
-			
+			String newDevice = readDevices(); 
+			 output = "{\"status\":\"success\", \"data\": \"" + newDevice+ "\"}"; 
+			 
 		}catch(Exception e) {
-			output = "Error while updating the item."; 
-			System.err.println(e.getMessage());
-			
+			output ="{\"status\":\"error\", \"data\":  \"Error while updating the device.\"}"; 
+			 System.err.println(e.getMessage()); 
 		}
+			
+		
 		
 	   return output;
     	
