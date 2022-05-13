@@ -1,15 +1,15 @@
-/**
- * 
- */
+
 /* hide the divisions used to show the status messages on the page load */
-$(document).ready(function() 
-{ 
-if ($("#alertSuccess").text().trim() == "") 
- { 
- $("#alertSuccess").hide(); 
- } 
- $("#alertError").hide(); 
-});
+   $(document).ready(function() 
+    { 
+      if ($("#alertSuccess").text().trim() == "") 
+       { 
+           $("#alertSuccess").hide(); 
+        } 
+      $("#alertError").hide(); 
+    });
+    
+    
 /*  add a click event handler for the Save button */
 $(document).on("click", "#btnSave", function(event) 
 { 
@@ -29,9 +29,22 @@ $(document).on("click", "#btnSave", function(event)
       return; 
    } 
    
+   //if valid
+   var type = ($("#hidDeviceIDSave").val() == "") ? "POST" : "PUT"; 
+    $.ajax( 
+   { 
+          url : "DeviceAPI", 
+          type : type, 
+          data : $("#formDevice").serialize(), 
+          dataType : "text", 
+    complete : function(response, status) 
+     { 
+           onDeviceSaveComplete(response.responseText, status); 
+     } 
+ }); 
  
-     $("#formDevice").submit(); 
-  //}
+     //$("#formDevice").submit(); 
+  
 
 
 });
@@ -92,29 +105,95 @@ $(document).on("click", "#btnSave", function(event)
 
 //Update operation
 
-$(document).on("click", ".btnUpdate", function(event) 
+ $(document).on("click", ".btnUpdate", function(event) 
+       { 
+                 $("#hidDeviceIDSave").val($(this).data("deviceID"));
+                 $("#txtAppliance").val($(this).closest("tr").find('td:eq(0)').text()); 
+                 $("#txtPower").val($(this).closest("tr").find('td:eq(1)').text()); 
+                 $("#txtHrs").val($(this).closest("tr").find('td:eq(2)').text()); 
+                 $("#txtNoDevices").val($(this).closest("tr").find('td:eq(3)').text()); 
+      });
+
+
+
+function onItemSaveComplete(response, status) 
 { 
-      $("#hidDeviceIDSave").val($(this).closest("tr").find('#hidDeviceIDUpdate').val()); 
-      $("#txtAppliance").val($(this).closest("tr").find('td:eq(0)').text()); 
-      $("#txtPower").val($(this).closest("tr").find('td:eq(1)').text()); 
-      $("#txtHrs").val($(this).closest("tr").find('td:eq(2)').text()); 
-      $("#txtNoDevices").val($(this).closest("tr").find('td:eq(3)').text()); 
-});
+    if (status == "success") 
+     { 
+	  //when status is success, obtain the data in JSON object 
+       var resultSet = JSON.parse(response); 
+       if (resultSet.status.trim() == "success") 
+           { 
+              $("#alertSuccess").text("Successfully saved."); 
+              $("#alertSuccess").show(); 
+              $("#divDevicesGrid").html(resultSet.data); //Json object which is HTML for the updated grid, set into the divDevicesGrid
+              } else if (resultSet.status.trim() == "error") 
+                    { 
+                       $("#alertError").text(resultSet.data); 
+                        $("#alertError").show(); 
+                      } 
+           } else if (status == "error") //display relevant error message on alerts
+                  { 
+                        $("#alertError").text("Error while saving."); 
+                         $("#alertError").show(); 
+                     } else
+                           { 
+                              $("#alertError").text("Unknown error while saving.."); 
+                              $("#alertError").show(); 
+                                         }
+         //reset the form                                
+        $("#hidDeviceIDSave").val(""); 
+        $("#formDevice")[0].reset(); 
+
+}
 
 
 
 
+//delete operation
+  $(document).on("click", ".btnRemove", function(event) 
+                { 
+                     $.ajax( 
+                                 { 
+                                         url : "DeviceAPI", 
+                                         type : "DELETE", 
+                                         data : "deviceID=" + $(this).data("deviceID"),
+                                         dataType : "text", 
+                                       complete : function(response, status) 
+                                              { 
+                                                   onDeviceDeleteComplete(response.responseText, status); 
+                                                  } 
+                                         }); 
+                  });
 
 
 
 
-
-
-
-
-
-
-
+function onDeviceDeleteComplete(response, status) 
+      { 
+         if (status == "success") 
+        { 
+           var resultSet = JSON.parse(response); 
+           if (resultSet.status.trim() == "success") 
+            { 
+               $("#alertSuccess").text("Successfully deleted."); 
+               $("#alertSuccess").show(); 
+               $("#divDevicesGrid").html(resultSet.data); 
+             } else if (resultSet.status.trim() == "error") 
+                 { 
+                        $("#alertError").text(resultSet.data); 
+                        $("#alertError").show(); 
+                 } 
+            } else if (status == "error") 
+                { 
+                       $("#alertError").text("Error while deleting."); 
+                       $("#alertError").show(); 
+                 } else
+                         { 
+                                $("#alertError").text("Unknown error while deleting.."); 
+                                $("#alertError").show(); 
+                          } 
+     }
 
 
 
